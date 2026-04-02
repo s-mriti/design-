@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pranavita — Holistic Wellness</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --sage: #7a9e7e;
+    --earth: #c4956a;
+    --cream: #f5f0e8;
+    --deep: #1a1a12;
+    --gold: #d4a843;
+    --mist: #e8ede6;
+    --water: #4a7c95;
+    --terracotta: #b5603c;
+    --ivory: #faf7f0;
+    --charcoal: #2d2d2a;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--deep);
+    color: var(--cream);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 8px; height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s, background 0.2s;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(212, 168, 67, 0.5);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.5rem 4rem;
+    display: flex; align-items: center; justify-content: space-between;
+    background: transparent;
+    transition: background 0.4s;
+  }
+  nav.scrolled { background: rgba(26,26,18,0.92); backdrop-filter: blur(12px); }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem; font-weight: 300;
+    letter-spacing: 0.1em; color: var(--cream);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--gold); }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    font-size: 0.82rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(245,240,232,0.7); text-decoration: none;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-cta {
+    padding: 0.6rem 1.8rem;
+    border: 1px solid var(--gold);
+    color: var(--gold); font-size: 0.78rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    text-decoration: none; cursor: pointer;
+    transition: all 0.3s;
+  }
+  .nav-cta:hover { background: var(--gold); color: var(--deep); }
+
+  /* HERO */
+  #hero {
+    position: relative; min-height: 100vh;
+    display: flex; align-items: center;
+    overflow: hidden;
+  }
+  #three-canvas {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+  }
+  .hero-content {
+    position: relative; z-index: 2;
+    padding: 0 4rem; max-width: 900px;
+  }
+  .hero-eyebrow {
+    font-size: 0.75rem; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 1.5rem; opacity: 0;
+  }
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    font-weight: 300; line-height: 1.05;
+    margin-bottom: 1.8rem; opacity: 0;
+  }
+  .hero-title em { font-style: italic; color: var(--gold); }
+  .hero-sub {
+    font-size: 1.05rem; font-weight: 300;
+    color: rgba(245,240,232,0.7);
+    max-width: 480px; line-height: 1.8;
+    margin-bottom: 2.8rem; opacity: 0;
+  }
+  .hero-btns { display: flex; gap: 1.2rem; opacity: 0; }
+  .btn-primary {
+    padding: 1rem 2.5rem;
+    background: var(--gold); color: var(--deep);
+    font-size: 0.82rem; letter-spacing: 0.12em;
+    text-transform: uppercase; text-decoration: none;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: inline-block;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(212,168,67,0.3); }
+  .btn-outline {
+    padding: 1rem 2.5rem;
+    border: 1px solid rgba(245,240,232,0.4); color: var(--cream);
+    font-size: 0.82rem; letter-spacing: 0.12em;
+    text-transform: uppercase; text-decoration: none;
+    transition: border-color 0.3s;
+    display: inline-block;
+  }
+  .btn-outline:hover { border-color: var(--cream); }
+  .scroll-indicator {
+    position: absolute; bottom: 2rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    z-index: 2; opacity: 0;
+  }
+  .scroll-indicator span { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(245,240,232,0.4); }
+  .scroll-line { width: 1px; height: 60px; background: linear-gradient(to bottom, rgba(245,240,232,0.4), transparent); animation: scrollLine 1.8s ease-in-out infinite; }
+  @keyframes scrollLine { 0%,100%{opacity:1;transform:scaleY(1)} 50%{opacity:0.3;transform:scaleY(0.5)} }
+
+  /* MARQUEE */
+  .marquee-section {
+    padding: 1.5rem 0;
+    background: var(--gold);
+    overflow: hidden;
+  }
+  .marquee-track {
+    display: flex; gap: 4rem; width: max-content;
+    animation: marquee 20s linear infinite;
+  }
+  .marquee-item {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem; font-style: italic;
+    color: var(--deep); white-space: nowrap;
+    display: flex; align-items: center; gap: 1.5rem;
+  }
+  .marquee-item::after { content: '✦'; font-style: normal; font-size: 0.6rem; }
+  @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+  /* SECTION COMMON */
+  section { padding: 8rem 4rem; }
+  .section-label {
+    font-size: 0.7rem; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 300; line-height: 1.15;
+  }
+
+  /* SERVICES */
+  #services { background: var(--ivory); color: var(--deep); }
+  #services .section-title { color: var(--deep); }
+  .services-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 2px; margin-top: 4rem;
+  }
+  .service-card {
+    position: relative; overflow: hidden;
+    aspect-ratio: 3/4; cursor: pointer;
+  }
+  .service-bg {
+    position: absolute; inset: 0;
+    transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .service-card:hover .service-bg { transform: scale(1.06); }
+  .s1 .service-bg { background: linear-gradient(160deg, #4a7246 0%, #1a3318 100%); }
+  .s2 .service-bg { background: linear-gradient(160deg, #3d6b80 0%, #1a2e38 100%); }
+  .s3 .service-bg { background: linear-gradient(160deg, #8b5a3c 0%, #3d2218 100%); }
+  .s4 .service-bg { background: linear-gradient(160deg, #7a6b4a 0%, #32280f 100%); }
+  .s5 .service-bg { background: linear-gradient(160deg, #6b4a7a 0%, #28183d 100%); }
+  .s6 .service-bg { background: linear-gradient(160deg, #4a7a6b 0%, #182e28 100%); }
+  .service-icon {
+    position: absolute; top: 2rem; left: 2rem;
+    width: 52px; height: 52px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+  }
+  .service-content {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 2rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+    transform: translateY(2rem); opacity: 0;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .service-card:hover .service-content { transform: translateY(0); opacity: 1; }
+  .service-num {
+    position: absolute; top: 2rem; right: 2rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.5rem; font-weight: 300;
+    color: rgba(255,255,255,0.1); line-height: 1;
+  }
+  .service-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem; font-weight: 400;
+    color: #fff; margin-bottom: 0.5rem;
+  }
+  .service-desc { font-size: 0.82rem; color: rgba(255,255,255,0.7); line-height: 1.7; }
+
+  /* AYURVEDA */
+  #ayurveda {
+    background: var(--deep);
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6rem; align-items: center;
+  }
+  .dosha-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .dosha-card {
+    padding: 2rem; border: 1px solid rgba(245,240,232,0.1);
+    transition: border-color 0.3s, transform 0.3s;
+    cursor: default;
+  }
+  .dosha-card:hover { border-color: var(--gold); transform: translateY(-4px); }
+  .dosha-icon { font-size: 2rem; margin-bottom: 1rem; }
+  .dosha-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-style: italic;
+    color: var(--gold); margin-bottom: 0.4rem;
+  }
+  .dosha-elem { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(245,240,232,0.4); margin-bottom: 0.8rem; }
+  .dosha-text { font-size: 0.82rem; color: rgba(245,240,232,0.6); line-height: 1.7; }
+
+  /* WELLNESS NUMBERS */
+  .stats-bar {
+    background: var(--charcoal);
+    padding: 4rem;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 2rem; text-align: center;
+  }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.5rem; font-weight: 300; color: var(--gold);
+  }
+  .stat-label { font-size: 0.78rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(245,240,232,0.5); margin-top: 0.3rem; }
+
+  /* PROGRAMS */
+  #programs { background: var(--mist); color: var(--deep); }
+  #programs .section-title { color: var(--deep); }
+  .programs-list { margin-top: 4rem; display: flex; flex-direction: column; gap: 1px; }
+  .program-item {
+    display: grid; grid-template-columns: 80px 1fr auto;
+    align-items: center; gap: 2rem;
+    padding: 2rem 0; border-top: 1px solid rgba(26,26,18,0.15);
+    cursor: pointer; transition: padding 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .program-item::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 0; background: var(--deep);
+    transition: width 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    z-index: 0;
+  }
+  .program-item:hover::before { width: 100%; }
+  .program-item:hover { padding-left: 1.5rem; color: var(--cream); }
+  .program-item * { position: relative; z-index: 1; }
+  .prog-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem; font-weight: 300; color: rgba(26,26,18,0.2);
+    transition: color 0.3s;
+  }
+  .program-item:hover .prog-num { color: rgba(245,240,232,0.3); }
+  .prog-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem; font-weight: 400;
+  }
+  .prog-tag {
+    font-size: 0.72rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: rgba(26,26,18,0.4);
+    transition: color 0.3s;
+  }
+  .program-item:hover .prog-tag { color: rgba(245,240,232,0.5); }
+  .prog-arrow { font-size: 1.5rem; transform: rotate(-45deg); transition: transform 0.3s; }
+  .program-item:hover .prog-arrow { transform: rotate(0deg); }
+  .program-item:last-child { border-bottom: 1px solid rgba(26,26,18,0.15); }
+
+  /* MINDFULNESS 3D */
+  #mindfulness {
+    background: var(--deep);
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4rem; align-items: center;
+  }
+  #mind-canvas { width: 100%; aspect-ratio: 1; }
+  .mind-features { display: flex; flex-direction: column; gap: 2rem; }
+  .mind-feat {
+    display: flex; gap: 1.5rem; align-items: flex-start;
+    padding: 1.5rem; border-left: 2px solid transparent;
+    transition: border-color 0.3s;
+  }
+  .mind-feat:hover { border-color: var(--gold); }
+  .mind-feat-icon {
+    width: 44px; height: 44px; flex-shrink: 0;
+    background: rgba(212,168,67,0.1);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+  }
+  .mind-feat-title { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; margin-bottom: 0.4rem; }
+  .mind-feat-text { font-size: 0.83rem; color: rgba(245,240,232,0.6); line-height: 1.7; }
+
+  /* TESTIMONIALS */
+  #testimonials { background: var(--earth); overflow: hidden; }
+  #testimonials .section-title { color: var(--ivory); }
+  .testi-slider { display: flex; gap: 2rem; margin-top: 4rem; overflow: hidden; }
+  .testi-card {
+    flex: 0 0 400px; padding: 2.5rem;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .testi-stars { color: var(--ivory); font-size: 0.8rem; letter-spacing: 0.2rem; margin-bottom: 1.2rem; }
+  .testi-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem; font-style: italic;
+    line-height: 1.7; color: var(--ivory);
+    margin-bottom: 1.5rem;
+  }
+  .testi-author { font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(250,247,240,0.6); }
+
+  /* CTA */
+  #cta {
+    background: var(--deep);
+    text-align: center; padding: 10rem 4rem;
+  }
+  #cta .section-title { font-size: clamp(3rem, 6vw, 5.5rem); max-width: 900px; margin: 0 auto 2rem; }
+  .cta-sub { font-size: 1rem; color: rgba(245,240,232,0.6); max-width: 500px; margin: 0 auto 3rem; line-height: 1.8; }
+
+  /* FOOTER */
+  footer {
+    background: var(--charcoal);
+    padding: 4rem; border-top: 1px solid rgba(245,240,232,0.08);
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem;
+  }
+  .footer-brand { }
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem; font-weight: 300;
+    color: var(--cream); margin-bottom: 1rem;
+  }
+  .footer-logo span { color: var(--gold); }
+  .footer-desc { font-size: 0.83rem; color: rgba(245,240,232,0.5); line-height: 1.7; max-width: 260px; }
+  .footer-col-title { font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.2rem; }
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+  .footer-links a { font-size: 0.85rem; color: rgba(245,240,232,0.5); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--cream); }
+  .footer-bottom { grid-column: 1/-1; padding-top: 2rem; border-top: 1px solid rgba(245,240,232,0.08); text-align: center; font-size: 0.75rem; color: rgba(245,240,232,0.3); }
+
+  /* Floating particles */
+  .particle { position: fixed; border-radius: 50%; pointer-events: none; z-index: 1; opacity: 0.4; }
+
+  /* Reveal animations */
+  .reveal { opacity: 0; transform: translateY(40px); }
+  .reveal-left { opacity: 0; transform: translateX(-40px); }
+
+  @media (max-width: 900px) {
+    nav { padding: 1.2rem 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 5rem 1.5rem; }
+    .services-grid { grid-template-columns: repeat(2, 1fr); }
+    #ayurveda, #mindfulness { grid-template-columns: 1fr; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    footer { grid-template-columns: 1fr 1fr; }
+    .hero-content { padding: 0 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">Prana<span>vita</span></a>
+  <ul class="nav-links">
+    <li><a href="#services">Programs</a></li>
+    <li><a href="#ayurveda">Ayurveda</a></li>
+    <li><a href="#mindfulness">Mindfulness</a></li>
+    <li><a href="#programs">Retreats</a></li>
+  </ul>
+  <a href="#cta" class="nav-cta">Begin Journey</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="three-canvas"></canvas>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Ancient Wisdom · Modern Healing</p>
+    <h1 class="hero-title">
+      Awaken the<br><em>sacred stillness</em><br>within
+    </h1>
+    <p class="hero-sub">Immerse in transformative yoga, Ayurvedic nutrition, mindfulness counselling and stress restoration — a complete path to wholeness.</p>
+    <div class="hero-btns">
+      <a href="#services" class="btn-primary">Explore Programs</a>
+      <a href="#cta" class="btn-outline">Free Consultation</a>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-track" id="marquee">
+    <div class="marquee-item">Hatha Yoga</div>
+    <div class="marquee-item">Ayurvedic Nutrition</div>
+    <div class="marquee-item">Aqua Therapy</div>
+    <div class="marquee-item">Mindfulness Counselling</div>
+    <div class="marquee-item">Stress Management</div>
+    <div class="marquee-item">Pranayama</div>
+    <div class="marquee-item">Dosha Balancing</div>
+    <div class="marquee-item">Swimming Therapy</div>
+    <div class="marquee-item">Hatha Yoga</div>
+    <div class="marquee-item">Ayurvedic Nutrition</div>
+    <div class="marquee-item">Aqua Therapy</div>
+    <div class="marquee-item">Mindfulness Counselling</div>
+    <div class="marquee-item">Stress Management</div>
+    <div class="marquee-item">Pranayama</div>
+    <div class="marquee-item">Dosha Balancing</div>
+    <div class="marquee-item">Swimming Therapy</div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="reveal">
+    <p class="section-label">What we offer</p>
+    <h2 class="section-title" style="color:var(--deep)">Six pillars of<br><em style="font-family:'Cormorant Garamond',serif;font-style:italic">holistic healing</em></h2>
+  </div>
+  <div class="services-grid">
+    <div class="service-card s1">
+      <div class="service-bg"></div>
+      <div class="service-icon">🧘</div>
+      <div class="service-num">01</div>
+      <div class="service-content">
+        <div class="service-name">Yoga Therapy</div>
+        <div class="service-desc">Personalised asana sequences aligned with your constitution — Hatha, Yin, Restorative, and therapeutic practices.</div>
+      </div>
+    </div>
+    <div class="service-card s2">
+      <div class="service-bg"></div>
+      <div class="service-icon">🌊</div>
+      <div class="service-num">02</div>
+      <div class="service-content">
+        <div class="service-name">Swimming & Aqua Healing</div>
+        <div class="service-desc">Hydrotherapy and guided swimming programs to improve circulation, reduce inflammation, and calm the nervous system.</div>
+      </div>
+    </div>
+    <div class="service-card s3">
+      <div class="service-bg"></div>
+      <div class="service-icon">🌿</div>
+      <div class="service-num">03</div>
+      <div class="service-content">
+        <div class="service-name">Ayurvedic Diet Plans</div>
+        <div class="service-desc">Dosha-specific meal programs crafted by Ayurvedic physicians — seasonal, sattvic, and deeply nourishing.</div>
+      </div>
+    </div>
+    <div class="service-card s4">
+      <div class="service-bg"></div>
+      <div class="service-icon">🧠</div>
+      <div class="service-num">04</div>
+      <div class="service-content">
+        <div class="service-name">Mindfulness Counselling</div>
+        <div class="service-desc">One-on-one and group sessions integrating mindfulness-based cognitive therapy, breathwork, and somatic awareness.</div>
+      </div>
+    </div>
+    <div class="service-card s5">
+      <div class="service-bg"></div>
+      <div class="service-icon">💆</div>
+      <div class="service-num">05</div>
+      <div class="service-content">
+        <div class="service-name">Stress Management</div>
+        <div class="service-desc">Evidence-based protocols combining pranayama, NSDR techniques, Yoga Nidra, and nervous system regulation.</div>
+      </div>
+    </div>
+    <div class="service-card s6">
+      <div class="service-bg"></div>
+      <div class="service-icon">☀️</div>
+      <div class="service-num">06</div>
+      <div class="service-content">
+        <div class="service-name">Panchakarma Detox</div>
+        <div class="service-desc">Traditional five-fold purification therapies — Abhyanga, Shirodhara, and deep Ayurvedic cleansing rituals.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AYURVEDA -->
+<section id="ayurveda">
+  <div class="reveal-left">
+    <p class="section-label">Ancient Science of Life</p>
+    <h2 class="section-title">Discover your<br><em style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold)">Ayurvedic self</em></h2>
+    <p style="margin:1.5rem 0 2.5rem;font-size:0.9rem;color:rgba(245,240,232,0.6);line-height:1.8;max-width:440px;">Every diet plan is woven around your unique Prakriti — the ancient Ayurvedic blueprint of your physical and mental nature. Eat in harmony with your doshas and feel the transformation.</p>
+    <a href="#cta" class="btn-primary" style="font-size:0.78rem">Take Dosha Quiz</a>
+  </div>
+  <div class="reveal">
+    <div class="dosha-grid">
+      <div class="dosha-card">
+        <div class="dosha-icon">🔥</div>
+        <div class="dosha-name">Vata</div>
+        <div class="dosha-elem">Air · Space</div>
+        <div class="dosha-text">Warming, grounding foods. Favour ghee, sesame, root vegetables, and warming spices to pacify Vata imbalance.</div>
+      </div>
+      <div class="dosha-card">
+        <div class="dosha-icon">☀️</div>
+        <div class="dosha-name">Pitta</div>
+        <div class="dosha-elem">Fire · Water</div>
+        <div class="dosha-text">Cooling, sweet foods. Coconut, leafy greens, mint, and bitter herbs balance Pitta's fiery intensity.</div>
+      </div>
+      <div class="dosha-card" style="grid-column:1/-1">
+        <div class="dosha-icon">🌍</div>
+        <div class="dosha-name">Kapha</div>
+        <div class="dosha-elem">Earth · Water</div>
+        <div class="dosha-text">Light, pungent, and dry foods. Ginger, turmeric, legumes, and bitter greens energise and uplift Kapha constitution. Avoid heavy dairy and sweets.</div>
+      </div>
+      <div class="dosha-card" style="grid-column:1/-1;background:rgba(212,168,67,0.08);border-color:rgba(212,168,67,0.3)">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-style:italic;color:var(--gold);margin-bottom:0.5rem">"Let food be thy medicine"</div>
+        <div style="font-size:0.78rem;color:rgba(245,240,232,0.5)">Seasonal meal plans · Weekly consultations · Herb & supplement guidance</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div>
+    <div class="stat-num" data-target="2400">0</div>
+    <div class="stat-label">Lives transformed</div>
+  </div>
+  <div>
+    <div class="stat-num" data-target="18">0</div>
+    <div class="stat-label">Expert practitioners</div>
+  </div>
+  <div>
+    <div class="stat-num" data-target="94">0</div>
+    <div class="stat-label">% stress reduction rate</div>
+  </div>
+  <div>
+    <div class="stat-num" data-target="12">0</div>
+    <div class="stat-label">Years of excellence</div>
+  </div>
+</div>
+
+<!-- PROGRAMS -->
+<section id="programs">
+  <div class="reveal">
+    <p class="section-label" style="color:var(--earth)">Our Retreats</p>
+    <h2 class="section-title">Immersive healing<br>journeys</h2>
+  </div>
+  <div class="programs-list">
+    <div class="program-item">
+      <span class="prog-num">01</span>
+      <div>
+        <div class="prog-name">Morning Yoga & Swim Immersion</div>
+        <div class="prog-tag">7-day · Beginner friendly</div>
+      </div>
+      <div class="prog-arrow">→</div>
+    </div>
+    <div class="program-item">
+      <span class="prog-num">02</span>
+      <div>
+        <div class="prog-name">Ayurvedic Detox & Reset</div>
+        <div class="prog-tag">14-day · All doshas</div>
+      </div>
+      <div class="prog-arrow">→</div>
+    </div>
+    <div class="program-item">
+      <span class="prog-num">03</span>
+      <div>
+        <div class="prog-name">Stress Dissolution Retreat</div>
+        <div class="prog-tag">5-day · Intensive · Executive wellness</div>
+      </div>
+      <div class="prog-arrow">→</div>
+    </div>
+    <div class="program-item">
+      <span class="prog-num">04</span>
+      <div>
+        <div class="prog-name">Mindfulness & MBCT Program</div>
+        <div class="prog-tag">8-week · Online & In-person</div>
+      </div>
+      <div class="prog-arrow">→</div>
+    </div>
+    <div class="program-item">
+      <span class="prog-num">05</span>
+      <div>
+        <div class="prog-name">Aqua Therapy & Recovery</div>
+        <div class="prog-tag">3-month · Therapeutic · Chronic conditions</div>
+      </div>
+      <div class="prog-arrow">→</div>
+    </div>
+  </div>
+</section>
+
+<!-- MINDFULNESS 3D -->
+<section id="mindfulness">
+  <canvas id="mind-canvas"></canvas>
+  <div>
+    <div class="reveal-left">
+      <p class="section-label">Inner Work</p>
+      <h2 class="section-title">The art of<br><em style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold)">mindful living</em></h2>
+      <p style="margin:1.5rem 0 2.5rem;font-size:0.88rem;color:rgba(245,240,232,0.6);line-height:1.8">Our counselling integrates Buddhist mindfulness, somatic therapy, and modern neuroscience — rebuilding your relationship with thought, body, and breath.</p>
+    </div>
+    <div class="mind-features">
+      <div class="mind-feat reveal">
+        <div class="mind-feat-icon">🌬️</div>
+        <div>
+          <div class="mind-feat-title">Breathwork & Pranayama</div>
+          <div class="mind-feat-text">Nadi Shodhana, Kapalabhati, and Box Breathing sessions that recalibrate the autonomic nervous system.</div>
+        </div>
+      </div>
+      <div class="mind-feat reveal">
+        <div class="mind-feat-icon">🌙</div>
+        <div>
+          <div class="mind-feat-title">Yoga Nidra & NSDR</div>
+          <div class="mind-feat-text">40-minute guided sessions equivalent to 4 hours of deep sleep — scientifically documented neural restoration.</div>
+        </div>
+      </div>
+      <div class="mind-feat reveal">
+        <div class="mind-feat-icon">💬</div>
+        <div>
+          <div class="mind-feat-title">1-on-1 Counselling</div>
+          <div class="mind-feat-text">Private sessions with certified mindfulness therapists trained in MBCT, ACT, and trauma-informed care.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="reveal">
+    <p class="section-label" style="color:rgba(250,247,240,0.6)">Voices of healing</p>
+    <h2 class="section-title">What our community<br>shares</h2>
+  </div>
+  <div class="testi-slider" id="testiSlider">
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-text">"The Ayurvedic diet plan completely changed my relationship with food. Three months in, my digestion, energy, and sleep are transformed."</div>
+      <div class="testi-author">— Priya M., Mumbai · Pitta Programme</div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-text">"The stress management retreat was life-altering. I came in running on empty and left with tools I use every single morning."</div>
+      <div class="testi-author">— Rahul K., Delhi · Executive Wellness</div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-text">"Aqua therapy alongside yoga — I never imagined swimming could be this meditative. My chronic back pain has reduced by 80%."</div>
+      <div class="testi-author">— Ananya S., Bangalore · Aqua Recovery</div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-text">"The mindfulness counsellor didn't just teach me meditation — she helped me see the patterns driving my anxiety. Profound work."</div>
+      <div class="testi-author">— Kabir R., Pune · MBCT Programme</div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <div class="testi-text">"Seven days of morning yoga and swimming left me more rested than any holiday I've ever taken. I'll be back every year."</div>
+      <div class="testi-author">— Meera T., Chennai · Morning Immersion</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <p class="section-label reveal" style="text-align:center">Begin today</p>
+  <h2 class="section-title reveal">Your journey to<br><em style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold)">wholeness</em> starts<br>with one breath</h2>
+  <p class="cta-sub reveal">Free 30-minute discovery consultation with a Pranavita wellness advisor. No commitment — just a conversation about your path.</p>
+  <a href="mailto:hello@pranavita.in" class="btn-primary reveal" style="font-size:0.85rem;letter-spacing:0.15em">Book Free Consultation</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <div class="footer-logo">Prana<span>vita</span></div>
+    <div class="footer-desc">Blending the timeless wisdom of Ayurveda with modern therapeutic science. Gurugram · Delhi NCR · Online worldwide.</div>
+  </div>
+  <div>
+    <div class="footer-col-title">Programs</div>
+    <ul class="footer-links">
+      <li><a href="#">Yoga Therapy</a></li>
+      <li><a href="#">Swimming & Aqua</a></li>
+      <li><a href="#">Ayurvedic Diet</a></li>
+      <li><a href="#">Stress Retreats</a></li>
+    </ul>
+  </div>
+  <div>
+    <div class="footer-col-title">Resources</div>
+    <ul class="footer-links">
+      <li><a href="#">Dosha Quiz</a></li>
+      <li><a href="#">Blog & Recipes</a></li>
+      <li><a href="#">Guided Meditations</a></li>
+      <li><a href="#">Research Library</a></li>
+    </ul>
+  </div>
+  <div>
+    <div class="footer-col-title">Connect</div>
+    <ul class="footer-links">
+      <li><a href="#">Instagram</a></li>
+      <li><a href="#">YouTube</a></li>
+      <li><a href="#">WhatsApp</a></li>
+      <li><a href="#">hello@pranavita.in</a></li>
+    </ul>
+  </div>
+  <div class="footer-bottom">© 2025 Pranavita Wellness. All rights reserved. Holistic health is a complement, not a substitute, for medical treatment.</div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// CURSOR
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursorRing');
+let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+(function animCursor() {
+  cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+  ringX += (mouseX - ringX) * 0.12; ringY += (mouseY - ringY) * 0.12;
+  cursorRing.style.left = ringX + 'px'; cursorRing.style.top = ringY + 'px';
+  requestAnimationFrame(animCursor);
+})();
+document.querySelectorAll('a, button, .service-card, .program-item, .dosha-card').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.width='16px';cursor.style.height='16px';cursor.style.background='#fff'; });
+  el.addEventListener('mouseleave', () => { cursor.style.width='8px';cursor.style.height='8px';cursor.style.background='var(--gold)'; });
+});
+
+// THREE.JS HERO
+(function initHero() {
+  const canvas = document.getElementById('three-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  renderer.setSize(w, h);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 100);
+  camera.position.set(0, 0, 5);
+
+  // Lotus / mandala geometry — torus knot clusters
+  const group = new THREE.Group();
+  scene.add(group);
+
+  const mat1 = new THREE.MeshBasicMaterial({ color: 0xd4a843, wireframe: true, transparent: true, opacity: 0.15 });
+  const mat2 = new THREE.MeshBasicMaterial({ color: 0x7a9e7e, wireframe: true, transparent: true, opacity: 0.1 });
+  const mat3 = new THREE.MeshBasicMaterial({ color: 0xc4956a, wireframe: true, transparent: true, opacity: 0.08 });
+
+  const t1 = new THREE.Mesh(new THREE.TorusKnotGeometry(1.6, 0.3, 180, 20, 3, 5), mat1);
+  const t2 = new THREE.Mesh(new THREE.TorusKnotGeometry(2.2, 0.15, 160, 16, 5, 3), mat2);
+  const t3 = new THREE.Mesh(new THREE.TorusGeometry(2.8, 0.04, 8, 120), mat3);
+  const t4 = new THREE.Mesh(new THREE.TorusGeometry(3.4, 0.02, 8, 120), mat3);
+  const t5 = new THREE.Mesh(new THREE.IcosahedronGeometry(1, 2), new THREE.MeshBasicMaterial({ color: 0xd4a843, wireframe: true, transparent: true, opacity: 0.06 }));
+
+  group.add(t1, t2, t3, t4, t5);
+  group.position.set(3, 0, -1);
+
+  // Floating particles
+  const pts = [];
+  for (let i = 0; i < 300; i++) {
+    pts.push((Math.random()-0.5)*14, (Math.random()-0.5)*10, (Math.random()-0.5)*8);
+  }
+  const partGeo = new THREE.BufferGeometry();
+  partGeo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+  const partMesh = new THREE.Points(partGeo, new THREE.PointsMaterial({ color: 0xd4a843, size: 0.025, transparent: true, opacity: 0.5 }));
+  scene.add(partMesh);
+
+  let mx = 0, my = 0;
+  document.addEventListener('mousemove', e => { mx = (e.clientX/window.innerWidth-.5)*2; my = -(e.clientY/window.innerHeight-.5)*2; });
+
+  function render(t) {
+    requestAnimationFrame(render);
+    t *= 0.001;
+    t1.rotation.x = t * 0.3; t1.rotation.y = t * 0.5;
+    t2.rotation.x = -t * 0.2; t2.rotation.z = t * 0.4;
+    t3.rotation.z = t * 0.15;
+    t4.rotation.z = -t * 0.1;
+    t5.rotation.x = t * 0.4; t5.rotation.y = t * 0.3;
+    group.rotation.y += (mx * 0.3 - group.rotation.y) * 0.04;
+    group.rotation.x += (my * 0.2 - group.rotation.x) * 0.04;
+    partMesh.rotation.y = t * 0.05;
+    renderer.render(scene, camera);
+  }
+  render(0);
+
+  window.addEventListener('resize', () => {
+    const w2 = canvas.clientWidth, h2 = window.innerHeight;
+    camera.aspect = w2 / h2;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w2, h2);
+  });
+})();
+
+// THREE.JS MINDFULNESS SPHERE
+(function initMind() {
+  const canvas = document.getElementById('mind-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  renderer.setSize(w, h);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
+  camera.position.z = 3.5;
+
+  const geo = new THREE.SphereGeometry(1.2, 64, 64);
+  const mat = new THREE.MeshBasicMaterial({ color: 0x7a9e7e, wireframe: true, transparent: true, opacity: 0.25 });
+  const sphere = new THREE.Mesh(geo, mat);
+
+  const inner = new THREE.Mesh(
+    new THREE.SphereGeometry(0.85, 32, 32),
+    new THREE.MeshBasicMaterial({ color: 0xd4a843, wireframe: true, transparent: true, opacity: 0.15 })
+  );
+
+  const ring1 = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.012, 8, 120), new THREE.MeshBasicMaterial({ color: 0xd4a843, transparent: true, opacity: 0.3 }));
+  const ring2 = new THREE.Mesh(new THREE.TorusGeometry(1.75, 0.008, 8, 120), new THREE.MeshBasicMaterial({ color: 0xc4956a, transparent: true, opacity: 0.2 }));
+  ring1.rotation.x = Math.PI / 2.5;
+  ring2.rotation.x = -Math.PI / 3;
+
+  scene.add(sphere, inner, ring1, ring2);
+
+  function render(t) {
+    requestAnimationFrame(render);
+    t *= 0.001;
+    sphere.rotation.y = t * 0.2;
+    sphere.rotation.x = t * 0.1;
+    inner.rotation.y = -t * 0.3;
+    inner.rotation.z = t * 0.15;
+    ring1.rotation.z = t * 0.1;
+    ring2.rotation.y = t * 0.08;
+    renderer.render(scene, camera);
+  }
+  render(0);
+})();
+
+// NAV SCROLL
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 80);
+});
+
+// HERO ENTRANCE
+gsap.timeline({ delay: 0.3 })
+  .to('.hero-eyebrow', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' })
+  .to('.hero-title', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, '-=0.5')
+  .to('.hero-sub', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.6')
+  .to('.hero-btns', { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, '-=0.5')
+  .to('.scroll-indicator', { opacity: 1, duration: 0.6 }, '-=0.2');
+
+// SCROLL REVEALS
+gsap.utils.toArray('.reveal').forEach(el => {
+  gsap.fromTo(el,
+    { opacity: 0, y: 50 },
+    { opacity: 1, y: 0, duration: 1, ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 82%', toggleActions: 'play none none none' } }
+  );
+});
+gsap.utils.toArray('.reveal-left').forEach(el => {
+  gsap.fromTo(el,
+    { opacity: 0, x: -50 },
+    { opacity: 1, x: 0, duration: 1, ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 82%', toggleActions: 'play none none none' } }
+  );
+});
+
+// SERVICE CARDS STAGGER
+gsap.fromTo('.service-card',
+  { opacity: 0, scale: 0.92 },
+  { opacity: 1, scale: 1, duration: 0.7, stagger: 0.1, ease: 'power3.out',
+    scrollTrigger: { trigger: '.services-grid', start: 'top 75%' } }
+);
+
+// COUNTER ANIMATION
+document.querySelectorAll('[data-target]').forEach(el => {
+  ScrollTrigger.create({
+    trigger: el, start: 'top 85%', once: true,
+    onEnter: () => {
+      const target = +el.dataset.target;
+      gsap.to({ val: 0 }, {
+        val: target, duration: 2, ease: 'power2.out',
+        onUpdate: function() { el.textContent = Math.round(this.targets()[0].val).toLocaleString(); }
+      });
+    }
+  });
+});
+
+// PROGRAM ITEMS STAGGER
+gsap.fromTo('.program-item',
+  { opacity: 0, x: -30 },
+  { opacity: 1, x: 0, duration: 0.6, stagger: 0.12, ease: 'power2.out',
+    scrollTrigger: { trigger: '.programs-list', start: 'top 78%' } }
+);
+
+// TESTIMONIAL INFINITE SCROLL
+const slider = document.getElementById('testiSlider');
+let sliderPos = 0;
+const totalW = slider.scrollWidth / 2;
+function animSlider() {
+  sliderPos += 0.5;
+  if (sliderPos >= totalW) sliderPos = 0;
+  slider.scrollLeft = sliderPos;
+  requestAnimationFrame(animSlider);
+}
+// Clone cards
+const cards = Array.from(slider.children);
+cards.forEach(c => slider.appendChild(c.cloneNode(true)));
+slider.addEventListener('mouseenter', () => sliderPos += 0);
+requestAnimationFrame(animSlider);
+
+// PARALLAX HERO TEXT
+gsap.to('.hero-content', {
+  y: -100, ease: 'none',
+  scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true }
+});
+
+// DOSHA CARD HOVER GSAP
+document.querySelectorAll('.dosha-card').forEach(card => {
+  card.addEventListener('mouseenter', () => gsap.to(card, { scale: 1.02, duration: 0.3 }));
+  card.addEventListener('mouseleave', () => gsap.to(card, { scale: 1, duration: 0.3 }));
+});
+</script>
+</body>
+</html>
