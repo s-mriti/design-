@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IndoGulf Wellness — Welcome</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream:      #f0ebe0;
+  --cream-dark: #d8cdb4;
+  --cream-mid:  #e4dcc8;
+  --ink:        #1a3a2e;
+  --ink-mid:    #2d5c46;
+  --ink-faded:  #4a7c63;
+  --ink-ghost:  rgba(26,58,46,0.18);
+  --gold:       #b8902a;
+  --gold-light: #d4a94a;
+  --teal:       #1a4a5c;
+  --teal-mid:   #2e7a8a;
+}
+
+body {
+  font-family: 'Cormorant Garamond', serif;
+  background: #0a1a14;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ══ PRELOADER ══ */
+#preloader {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 40%, #0d2218 0%, #050e09 100%);
+  transition: opacity 1s ease, visibility 1s ease;
+}
+#preloader.dismissed { opacity: 0; visibility: hidden; pointer-events: none; }
+
+/* ambient particles */
+#preloader::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(45,92,70,0.15) 1px, transparent 1px);
+  background-size: 48px 48px;
+  animation: shimmerGrid 8s linear infinite;
+  pointer-events: none;
+}
+@keyframes shimmerGrid {
+  0%   { opacity: 0.3; }
+  50%  { opacity: 0.7; }
+  100% { opacity: 0.3; }
+}
+
+/* ══ PARCHMENT ══ */
+#map-wrap {
+  position: relative;
+  width: min(860px, 96vw);
+  height: min(600px, 93vh);
+  perspective: 1600px;
+}
+
+#parchment {
+  width: 100%; height: 100%;
+  border-radius: 5px;
+  background: var(--cream);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.3'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.13'/%3E%3C/svg%3E");
+  box-shadow:
+    0 0 0 2px var(--cream-dark),
+    0 0 0 5px #a89060,
+    0 0 0 8px #7a6040,
+    0 0 80px 30px rgba(0,0,0,0.95),
+    inset 0 0 100px rgba(0,0,0,0.12);
+  transform-origin: center center;
+  animation: unfurl 1.6s cubic-bezier(0.22,1,0.36,1) 0.2s both;
+  overflow: hidden;
+  position: relative;
+}
+
+@keyframes unfurl {
+  0%   { transform: rotateX(70deg) scaleY(0.04); opacity: 0; }
+  55%  { opacity: 1; }
+  100% { transform: rotateX(3deg) scaleY(1); opacity: 1; }
+}
+
+/* fold lines */
+.fold { position: absolute; background: rgba(26,58,46,0.1); pointer-events: none; }
+.fold.v { top: 0; bottom: 0; width: 1px; }
+.fold.h { left: 0; right: 0; height: 1px; }
+
+/* ══ MAP SVG ══ */
+#map-svg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  opacity: 0;
+  animation: fadeIn 1.2s ease 1.5s forwards;
+}
+@keyframes fadeIn { to { opacity: 1; } }
+
+/* ══ HEADER ══ */
+#hdr {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; flex-direction: column; align-items: center;
+  padding-top: 14px;
+  pointer-events: none;
+  opacity: 0;
+  animation: fadeIn 0.9s ease 2s forwards;
+}
+#hdr .brand {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(17px, 2.8vw, 26px);
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+#hdr .brand span { color: var(--gold); }
+#hdr .tagline {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(9px, 1.4vw, 12px);
+  color: var(--ink-faded);
+  letter-spacing: 0.22em;
+  margin-top: 3px;
+}
+#hdr .rule {
+  width: 220px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin-top: 7px; opacity: 0.6;
+}
+
+/* ══ FOOTER ══ */
+#ftr {
+  position: absolute; bottom: 14px; left: 0; right: 0;
+  text-align: center; pointer-events: none;
+  opacity: 0;
+  animation: pulsePrompt 2.4s ease-in-out 2.8s infinite;
+}
+#ftr span {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(10px, 1.6vw, 13px);
+  color: var(--ink-faded);
+  letter-spacing: 0.16em;
+}
+@keyframes pulsePrompt {
+  0%,100% { opacity: 0.35; }
+  50%      { opacity: 1; }
+}
+
+/* ══ PULSE DOTS on wellness zones ══ */
+.pulse-dot {
+  animation: pulseDot 2.5s ease-in-out infinite;
+}
+@keyframes pulseDot {
+  0%,100% { r: 4; opacity: 0.9; }
+  50%      { r: 7; opacity: 0.4; }
+}
+
+/* ══ HOME PAGE ══ */
+#home {
+  position: fixed; inset: 0; z-index: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 40%, #0d2218 0%, #050e09 100%);
+}
+#home .logo {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(28px, 5vw, 54px);
+  font-weight: 600;
+  color: #e4dcc8;
+  letter-spacing: 0.15em;
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 1.4s ease 0.3s, transform 1.4s ease 0.3s;
+}
+#home .logo span { color: var(--gold-light); }
+#home .sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(14px, 2vw, 20px);
+  color: #4a7c63;
+  letter-spacing: 0.2em;
+  margin-top: 10px;
+  opacity: 0; transform: translateY(14px);
+  transition: opacity 1.2s ease 0.7s, transform 1.2s ease 0.7s;
+}
+#home.revealed .logo,
+#home.revealed .sub { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ════ HOME PAGE ════ -->
+<div id="home">
+  <div class="logo">Indo<span>Gulf</span> Wellness</div>
+  <div class="sub">Your path to holistic health begins here</div>
+</div>
+
+<!-- ════ PRELOADER ════ -->
+<div id="preloader">
+<div id="map-wrap">
+<div id="parchment">
+
+  <!-- fold lines -->
+  <div class="fold v" style="left:33.3%"></div>
+  <div class="fold v" style="left:66.6%"></div>
+  <div class="fold h" style="top:50%"></div>
+
+  <!-- ════ WELLNESS MAP SVG ════ -->
+  <svg id="map-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 600" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <filter id="rough" x="-4%" y="-4%" width="108%" height="108%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="12" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="1.5" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+      <!-- gold shimmer gradient for ornaments -->
+      <linearGradient id="goldLine" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="transparent"/>
+        <stop offset="50%" stop-color="#b8902a" stop-opacity="0.7"/>
+        <stop offset="100%" stop-color="transparent"/>
+      </linearGradient>
+    </defs>
+
+    <!-- ── OUTER BORDER ── -->
+    <rect x="12" y="12" width="836" height="576" rx="4" fill="none" stroke="#1a3a2e" stroke-width="1.2" opacity="0.3"/>
+    <rect x="18" y="18" width="824" height="564" rx="3" fill="none" stroke="#b8902a" stroke-width="0.6" opacity="0.4" stroke-dasharray="5 4"/>
+    <!-- corner ornaments -->
+    <g opacity="0.5" stroke="#b8902a" stroke-width="0.8" fill="none">
+      <!-- TL --> <path d="M22 22 L50 22 M22 22 L22 50 M22 22 L34 34"/>
+      <!-- TR --> <path d="M838 22 L810 22 M838 22 L838 50 M838 22 L826 34"/>
+      <!-- BL --> <path d="M22 578 L50 578 M22 578 L22 550 M22 578 L34 566"/>
+      <!-- BR --> <path d="M838 578 L810 578 M838 578 L838 550 M838 578 L826 566"/>
+    </g>
+
+    <!-- ── BODY SILHOUETTE (central human form, stylized) ── -->
+    <g filter="url(#rough)" opacity="0.12" fill="#1a3a2e">
+      <!-- head -->
+      <ellipse cx="430" cy="130" rx="38" ry="44"/>
+      <!-- torso -->
+      <rect x="398" y="172" width="64" height="110" rx="12"/>
+      <!-- arms -->
+      <rect x="352" y="178" width="48" height="20" rx="10"/>
+      <rect x="460" y="178" width="48" height="20" rx="10"/>
+      <!-- legs -->
+      <rect x="404" y="280" width="24" height="90" rx="10"/>
+      <rect x="432" y="280" width="24" height="90" rx="10"/>
+    </g>
+
+    <!-- ── WELLNESS ZONE ROOMS ── -->
+    <g filter="url(#rough)" stroke="#1a3a2e" stroke-width="0.9" fill="none" opacity="0.72">
+
+      <!-- MIND & MENTAL WELLNESS (top left) -->
+      <rect x="52" y="55" width="155" height="100" rx="3"/>
+      <line x1="52" y1="80" x2="207" y2="80" stroke-width="0.5" opacity="0.5"/>
+      <!-- brain squiggle suggestion -->
+      <path d="M80 105 Q95 90 110 105 Q125 120 140 105 Q155 90 170 105" stroke-width="0.7" opacity="0.5"/>
+      <path d="M80 105 Q80 120 90 120 Q100 120 100 110" stroke-width="0.6" opacity="0.4"/>
+
+      <!-- NUTRITION & DIET (top right) -->
+      <rect x="650" y="55" width="158" height="100" rx="3"/>
+      <line x1="650" y1="80" x2="808" y2="80" stroke-width="0.5" opacity="0.5"/>
+      <!-- leaf/herb motif -->
+      <ellipse cx="700" cy="108" rx="14" ry="22" transform="rotate(-30,700,108)" stroke-width="0.7" opacity="0.5"/>
+      <line x1="700" y1="86" x2="700" y2="130" stroke-width="0.5" opacity="0.4"/>
+      <ellipse cx="730" cy="108" rx="12" ry="18" transform="rotate(25,730,108)" stroke-width="0.7" opacity="0.5"/>
+      <line x1="730" y1="90" x2="730" y2="126" stroke-width="0.5" opacity="0.4"/>
+
+      <!-- AYURVEDA & TRADITIONAL (left mid) -->
+      <rect x="40" y="230" width="160" height="110" rx="3"/>
+      <!-- lotus suggestion -->
+      <ellipse cx="120" cy="292" rx="20" ry="12" stroke-width="0.6" opacity="0.45"/>
+      <ellipse cx="100" cy="285" rx="12" ry="18" transform="rotate(-20,100,285)" stroke-width="0.6" opacity="0.4"/>
+      <ellipse cx="140" cy="285" rx="12" ry="18" transform="rotate(20,140,285)" stroke-width="0.6" opacity="0.4"/>
+      <ellipse cx="120" cy="278" rx="10" ry="20" stroke-width="0.6" opacity="0.35"/>
+
+      <!-- FITNESS & MOVEMENT (right mid) -->
+      <rect x="660" y="230" width="158" height="110" rx="3"/>
+      <!-- dumbbell suggestion -->
+      <rect x="690" y="283" width="80" height="8" rx="4" opacity="0.4"/>
+      <rect x="686" y="276" width="14" height="22" rx="4" opacity="0.35"/>
+      <rect x="760" y="276" width="14" height="22" rx="4" opacity="0.35"/>
+
+      <!-- DIAGNOSTICS & CHECK-UP (bottom left) -->
+      <rect x="52" y="420" width="155" height="100" rx="3"/>
+      <!-- heartbeat line -->
+      <path d="M68 472 L90 472 L100 452 L112 492 L124 462 L134 482 L195 482" stroke-width="0.8" opacity="0.55" fill="none"/>
+
+      <!-- REHABILITATION (bottom right) -->
+      <rect x="650" y="420" width="158" height="100" rx="3"/>
+      <!-- spine/joints suggestion -->
+      <line x1="730" y1="435" x2="730" y2="510" stroke-width="0.5" opacity="0.4"/>
+      <ellipse cx="730" cy="445" rx="10" ry="6" opacity="0.35"/>
+      <ellipse cx="730" cy="460" rx="10" ry="6" opacity="0.35"/>
+      <ellipse cx="730" cy="475" rx="10" ry="6" opacity="0.35"/>
+      <ellipse cx="730" cy="490" rx="10" ry="6" opacity="0.35"/>
+      <ellipse cx="730" cy="505" rx="10" ry="6" opacity="0.35"/>
+
+      <!-- HOLISTIC CENTRE (bottom centre) -->
+      <rect x="310" y="430" width="240" height="110" rx="3"/>
+      <!-- mandala rings -->
+      <circle cx="430" cy="485" r="30" stroke-width="0.6" opacity="0.4"/>
+      <circle cx="430" cy="485" r="20" stroke-width="0.5" opacity="0.35"/>
+      <circle cx="430" cy="485" r="10" stroke-width="0.5" opacity="0.3"/>
+      <line x1="430" y1="455" x2="430" y2="515" stroke-width="0.4" opacity="0.3"/>
+      <line x1="400" y1="485" x2="460" y2="485" stroke-width="0.4" opacity="0.3"/>
+      <line x1="409" y1="464" x2="451" y2="506" stroke-width="0.4" opacity="0.3"/>
+      <line x1="409" y1="506" x2="451" y2="464" stroke-width="0.4" opacity="0.3"/>
+
+      <!-- CONSULTATION CENTRE (top centre) -->
+      <rect x="318" y="60" width="224" height="100" rx="3"/>
+      <!-- caduceus suggestion -->
+      <line x1="430" y1="75" x2="430" y2="150" stroke-width="0.6" opacity="0.45"/>
+      <path d="M415 90 Q440 100 415 115 Q390 130 415 145" stroke-width="0.6" opacity="0.35" fill="none"/>
+      <path d="M445 90 Q420 100 445 115 Q470 130 445 145" stroke-width="0.6" opacity="0.35" fill="none"/>
+      <ellipse cx="430" cy="80" rx="8" ry="5" stroke-width="0.5" opacity="0.3"/>
+
+      <!-- WELLBEING PATHWAYS (corridors) -->
+      <!-- top corridors -->
+      <path d="M207 105 L318 105" stroke-width="0.8"/>
+      <path d="M542 105 L650 105" stroke-width="0.8"/>
+      <!-- left corridors -->
+      <path d="M120 155 L120 230" stroke-width="0.8"/>
+      <path d="M120 340 L120 420" stroke-width="0.8"/>
+      <!-- right corridors -->
+      <path d="M739 155 L739 230" stroke-width="0.8"/>
+      <path d="M739 340 L739 420" stroke-width="0.8"/>
+      <!-- bottom corridors -->
+      <path d="M207 470 L310 470" stroke-width="0.8"/>
+      <path d="M550 470 L650 470" stroke-width="0.8"/>
+      <!-- centre verticals -->
+      <path d="M430 160 L430 230" stroke-width="0.7" stroke-dasharray="4 3" opacity="0.6"/>
+      <path d="M430 370 L430 430" stroke-width="0.7" stroke-dasharray="4 3" opacity="0.6"/>
+      <!-- centre horizontals -->
+      <path d="M200 300 L310 300" stroke-width="0.7" stroke-dasharray="4 3" opacity="0.6"/>
+      <path d="M550 300 L660 300" stroke-width="0.7" stroke-dasharray="4 3" opacity="0.6"/>
+
+      <!-- WELLNESS HEART (centre) -->
+      <rect x="310" y="230" width="240" height="140" rx="5"/>
+      <!-- cross inside -->
+      <line x1="430" y1="248" x2="430" y2="352" stroke-width="0.5" opacity="0.3"/>
+      <line x1="322" y1="300" x2="538" y2="300" stroke-width="0.5" opacity="0.3"/>
+
+    </g>
+
+    <!-- ── ZONE LABELS ── -->
+    <g font-family="'Cormorant Garamond', serif" font-style="italic" fill="#1a3a2e" opacity="0.82">
+      <text x="130" y="74" font-size="10" text-anchor="middle" font-style="normal" font-weight="400" opacity="0.9" letter-spacing="1">MIND &amp; WELLNESS</text>
+      <text x="130" y="86" font-size="8.5" text-anchor="middle">Mental Health Centre</text>
+
+      <text x="729" y="74" font-size="10" text-anchor="middle" font-style="normal" opacity="0.9" letter-spacing="1">NUTRITION</text>
+      <text x="729" y="86" font-size="8.5" text-anchor="middle">Diet &amp; Nourishment</text>
+
+      <text x="120" y="247" font-size="10" text-anchor="middle" font-style="normal" opacity="0.9" letter-spacing="0.8">AYURVEDA</text>
+      <text x="120" y="259" font-size="8.5" text-anchor="middle">Traditional Medicine</text>
+
+      <text x="739" y="247" font-size="10" text-anchor="middle" font-style="normal" opacity="0.9" letter-spacing="0.8">FITNESS</text>
+      <text x="739" y="259" font-size="8.5" text-anchor="middle">Movement &amp; Vitality</text>
+
+      <text x="130" y="436" font-size="10" text-anchor="middle" font-style="normal" opacity="0.9" letter-spacing="0.8">DIAGNOSTICS</text>
+      <text x="130" y="448" font-size="8.5" text-anchor="middle">Check-up &amp; Screening</text>
+
+      <text x="729" y="436" font-size="10" text-anchor="middle" font-style="normal" opacity="0.9" letter-spacing="0.8">REHABILITATION</text>
+      <text x="729" y="448" font-size="8.5" text-anchor="middle">Recovery &amp; Physio</text>
+
+      <text x="430" y="77" font-size="10" text-anchor="middle" font-style="normal" opacity="0.9" letter-spacing="1">CONSULTATION</text>
+      <text x="430" y="89" font-size="8.5" text-anchor="middle">Expert Medical Advice</text>
+
+      <text x="430" y="447" font-size="10" text-anchor="middle" font-style="normal" opacity="0.9" letter-spacing="0.8">HOLISTIC CENTRE</text>
+      <text x="430" y="459" font-size="8.5" text-anchor="middle">Mind · Body · Soul</text>
+
+      <!-- centre wellness heart label -->
+      <text x="430" y="278" font-size="13" text-anchor="middle" font-style="italic" opacity="0.65">IndoGulf</text>
+      <text x="430" y="296" font-size="10" text-anchor="middle" font-style="normal" opacity="0.55" letter-spacing="2">WELLNESS CORE</text>
+      <text x="430" y="316" font-size="8.5" text-anchor="middle" opacity="0.45">Where all paths converge</text>
+
+      <!-- path labels -->
+      <text x="263" y="100" font-size="7.5" text-anchor="middle" font-style="italic" opacity="0.5">Mindful Path</text>
+      <text x="596" y="100" font-size="7.5" text-anchor="middle" font-style="italic" opacity="0.5">Nourish Way</text>
+      <text x="108" y="192" font-size="7" font-style="italic" opacity="0.45" transform="rotate(-90,108,192)">Healing Corridor</text>
+      <text x="727" y="192" font-size="7" font-style="italic" opacity="0.45" transform="rotate(90,727,192)">Vitality Path</text>
+    </g>
+
+    <!-- ── PULSING WELLNESS DOTS ── -->
+    <g fill="#2d5c46">
+      <!-- mind -->  <circle class="pulse-dot" cx="130" cy="155" r="4" opacity="0.8" style="animation-delay:0s"/>
+      <!-- nutrition --><circle class="pulse-dot" cx="729" cy="155" r="4" opacity="0.8" style="animation-delay:0.4s"/>
+      <!-- ayurveda --> <circle class="pulse-dot" cx="120" cy="340" r="4" opacity="0.8" style="animation-delay:0.8s"/>
+      <!-- fitness --> <circle class="pulse-dot" cx="739" cy="340" r="4" opacity="0.8" style="animation-delay:1.2s"/>
+      <!-- diagnostics --><circle class="pulse-dot" cx="130" cy="420" r="4" opacity="0.8" style="animation-delay:1.6s"/>
+      <!-- rehab --> <circle class="pulse-dot" cx="729" cy="420" r="4" opacity="0.8" style="animation-delay:2s"/>
+      <!-- core --> <circle class="pulse-dot" cx="430" cy="300" r="6" fill="#1a3a2e" opacity="0.7" style="animation-delay:0.2s"/>
+    </g>
+
+    <!-- ── WALKING FIGURE PATH (animated footsteps) ── -->
+    <g id="steps-layer" opacity="0.65"/>
+
+    <!-- ── COMPASS / MEDALLION ── -->
+    <g transform="translate(54,530)" opacity="0.55" stroke="#1a3a2e" fill="#1a3a2e">
+      <circle cx="0" cy="0" r="20" fill="none" stroke-width="0.7"/>
+      <line x1="0" y1="-20" x2="0" y2="20" stroke-width="0.5"/>
+      <line x1="-20" y1="0" x2="20" y2="0" stroke-width="0.5"/>
+      <polygon points="0,-20 -4,-8 4,-8" opacity="0.9"/>
+      <text x="0" y="-24" font-size="8" text-anchor="middle" font-family="'Cormorant Garamond',serif" fill="#1a3a2e">N</text>
+      <text x="0" y="35" font-size="7.5" text-anchor="middle" font-family="'Cormorant Garamond',serif" fill="#1a3a2e" font-style="italic">wellness map</text>
+    </g>
+
+    <!-- ── DECORATIVE BOTANICAL ELEMENTS ── -->
+    <!-- small herb sprigs in margins -->
+    <g opacity="0.28" stroke="#1a3a2e" stroke-width="0.6" fill="none">
+      <!-- top left herb -->
+      <line x1="30" y1="185" x2="38" y2="155"/>
+      <ellipse cx="24" cy="177" rx="8" ry="12" transform="rotate(-25,24,177)"/>
+      <ellipse cx="38" cy="165" rx="7" ry="11" transform="rotate(15,38,165)"/>
+      <!-- top right herb -->
+      <line x1="828" y1="185" x2="820" y2="155"/>
+      <ellipse cx="834" cy="177" rx="8" ry="12" transform="rotate(25,834,177)"/>
+      <ellipse cx="820" cy="165" rx="7" ry="11" transform="rotate(-15,820,165)"/>
+      <!-- bottom left herb -->
+      <line x1="30" y1="400" x2="38" y2="370"/>
+      <ellipse cx="24" cy="392" rx="8" ry="12" transform="rotate(-20,24,392)"/>
+      <!-- bottom right herb -->
+      <line x1="828" y1="400" x2="820" y2="370"/>
+      <ellipse cx="834" cy="392" rx="8" ry="12" transform="rotate(20,834,392)"/>
+    </g>
+
+    <!-- gold rule lines under header -->
+    <line x1="180" y1="55" x2="318" y2="55" stroke="url(#goldLine)" stroke-width="0.7"/>
+    <line x1="542" y1="55" x2="680" y2="55" stroke="url(#goldLine)" stroke-width="0.7"/>
+
+    <!-- scale bar bottom centre -->
+    <g transform="translate(370,564)" opacity="0.4" stroke="#1a3a2e" fill="#1a3a2e">
+      <line x1="0" y1="0" x2="120" y2="0" stroke-width="0.7"/>
+      <line x1="0" y1="-4" x2="0" y2="4" stroke-width="0.7"/>
+      <line x1="60" y1="-3" x2="60" y2="3" stroke-width="0.5"/>
+      <line x1="120" y1="-4" x2="120" y2="4" stroke-width="0.7"/>
+      <text x="60" y="-7" font-size="7" text-anchor="middle" font-family="'Cormorant Garamond',serif" font-style="italic">Wellness Journey</text>
+    </g>
+
+    <!-- gold seal bottom right -->
+    <g transform="translate(796,550)">
+      <circle cx="0" cy="0" r="28" fill="#b8902a" opacity="0.85" stroke="#7a6020" stroke-width="1.2"/>
+      <circle cx="0" cy="0" r="22" fill="none" stroke="#d4a94a" stroke-width="0.5" opacity="0.6" stroke-dasharray="3 2"/>
+      <text x="0" y="-6" font-size="8" text-anchor="middle" font-family="'Cinzel',serif" fill="#f0ebe0" letter-spacing="1">IGW</text>
+      <text x="0" y="8" font-size="6" text-anchor="middle" font-family="'Cormorant Garamond',serif" fill="#f0ebe0" font-style="italic">wellness</text>
+    </g>
+
+  </svg>
+
+  <!-- header overlay -->
+  <div id="hdr">
+    <div class="brand">Indo<span>Gulf</span> Wellness</div>
+    <div class="tagline">A Map to Your Complete Health &amp; Wellbeing</div>
+    <div class="rule"></div>
+  </div>
+
+  <!-- click prompt -->
+  <div id="ftr">
+    <span>~ touch anywhere to begin your journey ~</span>
+  </div>
+
+</div><!-- /parchment -->
+</div><!-- /map-wrap -->
+</div><!-- /preloader -->
+
+<script>
+(function(){
+  // ── inject footstep keyframe
+  const s = document.createElement('style');
+  s.textContent = `
+    @keyframes stepIn {
+      0%  { opacity:0; transform: scale(0.4); }
+      60% { opacity:0.7; }
+      100%{ opacity:0.55; transform: scale(1); }
+    }
+    @keyframes pulseDot {
+      0%,100% { r:4; opacity:0.9; }
+      50%      { r:7; opacity:0.35; }
+    }
+  `;
+  document.head.appendChild(s);
+
+  // footstep path: top corridor → down to centre → holistic centre → rehab
+  const footsteps = [
+    {x:263,y:112,flip:0,d:2.0},{x:272,y:104,flip:1,d:2.2},
+    {x:283,y:110,flip:0,d:2.4},{x:292,y:103,flip:1,d:2.6},
+    {x:304,y:108,flip:0,d:2.8},{x:315,y:103,flip:1,d:3.0},
+    // into consultation
+    {x:370,y:105,flip:0,d:3.2},{x:382,y:100,flip:1,d:3.4},
+    {x:394,y:105,flip:0,d:3.6},{x:406,y:100,flip:1,d:3.8},
+    // down to centre
+    {x:428,y:168,flip:0,d:4.0},{x:434,y:180,flip:1,d:4.2},
+    {x:428,y:194,flip:0,d:4.4},{x:434,y:208,flip:1,d:4.6},
+    {x:428,y:222,flip:0,d:4.8},
+    // along bottom corridor
+    {x:480,y:468,flip:0,d:5.0},{x:494,y:473,flip:1,d:5.2},
+    {x:508,y:468,flip:0,d:5.4},{x:522,y:473,flip:1,d:5.6},
+    {x:538,y:468,flip:0,d:5.8},
+  ];
+
+  function makeFoot(x,y,flip,delay) {
+    const ns='http://www.w3.org/2000/svg';
+    const g=document.createElementNS(ns,'g');
+    g.setAttribute('transform',`translate(${x},${y}) scale(${flip?-1:1},1)`);
+    g.style.cssText=`opacity:0;animation:stepIn 0.35s ease ${delay}s forwards`;
+    const foot=document.createElementNS(ns,'ellipse');
+    foot.setAttribute('cx','0'); foot.setAttribute('cy','0');
+    foot.setAttribute('rx','3.5'); foot.setAttribute('ry','6');
+    foot.setAttribute('fill','#1a3a2e');
+    g.appendChild(foot);
+    for(let i=0;i<4;i++){
+      const t=document.createElementNS(ns,'ellipse');
+      t.setAttribute('cx',String(-3+i*2.2)); t.setAttribute('cy','-7');
+      t.setAttribute('rx','1.5'); t.setAttribute('ry','2');
+      t.setAttribute('fill','#1a3a2e');
+      g.appendChild(t);
+    }
+    return g;
+  }
+
+  const layer=document.getElementById('steps-layer');
+  footsteps.forEach(f=>layer.appendChild(makeFoot(f.x,f.y,f.flip,f.d)));
+
+  // ── dismiss
+  const pre=document.getElementById('preloader');
+  const home=document.getElementById('home');
+  function dismiss(e){
+    if(e && e.cancelable) e.preventDefault();
+    pre.classList.add('dismissed');
+    setTimeout(()=>home.classList.add('revealed'),700);
+  }
+  pre.addEventListener('click',dismiss);
+  pre.addEventListener('touchend',dismiss,{passive:false});
+})();
+</script>
+</body>
+</html>
